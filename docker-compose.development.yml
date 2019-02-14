@@ -1,0 +1,15 @@
+version: "3.3"
+
+services:
+  db:
+    image: postgres
+  app:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    volumes:
+      - ./server.go:/go/src/github.com/k-yomo/tweet_scheduler/server.go
+    depends_on:
+      - db
+    ports:
+      - 1323:1323
