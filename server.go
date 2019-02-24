@@ -1,47 +1,55 @@
 package main
 
 import (
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"github.com/k-yomo/tweet_scheduler/src/handler"
-	"github.com/k-yomo/tweet_scheduler/src/helper"
-	"github.com/k-yomo/tweet_scheduler/src/models"
+	"github.com/joho/godotenv"
+	"github.com/k-yomo/tweet_scheduler/db"
+	"github.com/k-yomo/tweet_scheduler/handler"
+	"github.com/k-yomo/tweet_scheduler/helper"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/labstack/gommon/log"
 )
 
+const (
+	AuthApiRoot = "/auth/api/v1"
+	ApiRoot = "/api/v1"
+)
+
 func main()  {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error while loading .env file")
+	}
+
 	e := echo.New()
 	e.Logger.SetLevel(log.ERROR)
 	e.Use(middleware.Logger())
 	e.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		SigningKey: []byte(jwt_generator.Key),
 		Skipper: func(c echo.Context) bool {
-			// Skip authentication for and signup login requests
-			if c.Path() == "/login" || c.Path() == "/signup" {
+			// Skip authentication for login request
+			if c.Path() == AuthApiRoot + "/login" {
 				return true
 			}
 			return false
 		},
 	}))
 
-	db, err := gorm.Open("postgres", "host=localhost dbname=tweet_scheduler_development user=postgres sslmode=disable")
+	database, err := db.New()
 	if err != nil {
 		e.Logger.Fatal(err)
 	}
-	db.AutoMigrate(&models.User{}, &models.Tweet{})
 
-	h := &handler.Handler{DB: db}
+	h := &handler.Handler{DB: database}
 
 	// Routes
-	e.POST("/signup", h.Signup)
-	e.POST("/login", h.Login)
+	e.POST(AuthApiRoot + "/signup", h.Signup)
+	e.POST(AuthApiRoot + "/login", h.Login)
 	// Tweet CRUD
-	e.GET("/tweets", h.GetTweets)
-	e.POST("/tweets", h.CreateTweet)
-	e.PUT("/tweets/:id", h.UpdateTweet)
-	e.DELETE("/tweets/:id", h.DeleteTweet)
+	e.GET(ApiRoot + "/tweets", h.GetTweets)
+	e.POST(ApiRoot + "/tweets", h.CreateTweet)
+	e.PUT(ApiRoot + "/tweets/:id", h.UpdateTweet)
+	e.DELETE(ApiRoot + "/tweets/:id", h.DeleteTweet)
 
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))
