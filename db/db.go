@@ -11,7 +11,7 @@ import (
 )
 
 var config = struct {
-	DBName   string `default:"tweet_scheduler_development"`
+	DBName   string `default:"tweet_scheduler_development" env:"DB_NAME"`
 	User     string `default:"postgres" env:"DB_USER"`
 	Host     string `default:"db" env:"DB_HOST"`
 	Password string `default:"postgres" env:"DB_PASSWORD"`
