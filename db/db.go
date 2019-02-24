@@ -29,7 +29,6 @@ func New() (*gorm.DB, error) {
 		config.User,
 		config.DBName,
 		config.Password)
-	fmt.Print(args)
 
 	db, err := gorm.Open("postgres", args)
 
@@ -53,7 +52,7 @@ func autoMigrate(db *gorm.DB) {
 }
 
 func seedData(db *gorm.DB) {
-	u := models.User{
+	u := &models.User{
 		Email: "test@example.com",
 		Password: "password",
 	}

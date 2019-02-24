@@ -10,7 +10,11 @@ import (
 func (h *Handler) CreateTweet(c echo.Context) (err error) {
 	t := &models.Tweet{}
 	if err = c.Bind(t); err != nil {
-		return
+		return &echo.HTTPError{Code: http.StatusBadRequest, Message: err.Error()}
+	}
+
+	if len(t.Body) == 0 {
+		return &echo.HTTPError{Code: http.StatusBadRequest, Message: "Body can't be empty"}
 	}
 
 	result := h.DB.Create(t)
@@ -39,7 +43,7 @@ func (h *Handler) UpdateTweet(c echo.Context) (err error) {
 	h.DB.First(t, "id = ?", id)
 
 	if err = c.Bind(t); err != nil {
-		return
+		return &echo.HTTPError{Code: http.StatusBadRequest, Message: err.Error()}
 	}
 	result := h.DB.Save(&t)
 	if result.Error != nil {

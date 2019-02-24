@@ -1,4 +1,4 @@
-package jwt_generator
+package lib
 
 import (
 	"github.com/dgrijalva/jwt-go"
@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-var Key = os.Getenv("JWT_SIGNING_KEY")
+var JwtSigningKey = os.Getenv("JWT_SIGNING_KEY")
 
 func GenerateJwt(id uint) (string, error) {
 	token := jwt.New(jwt.SigningMethodHS256)
@@ -15,5 +15,5 @@ func GenerateJwt(id uint) (string, error) {
 	claims["id"] = id
 	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
 
-	return token.SignedString([]byte(Key))
+	return token.SignedString([]byte(JwtSigningKey))
 }

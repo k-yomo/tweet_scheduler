@@ -1,7 +1,7 @@
 package handler
 
 import (
-	"github.com/k-yomo/tweet_scheduler/helper"
+	"github.com/k-yomo/tweet_scheduler/lib"
 	"github.com/k-yomo/tweet_scheduler/models"
 	"github.com/labstack/echo"
 	"golang.org/x/crypto/bcrypt"
@@ -31,7 +31,7 @@ func (h *Handler) Signup(c echo.Context) (err error) {
 	if result.Error != nil {
 		return &echo.HTTPError{Code: http.StatusBadRequest, Message: result.Error}
 	}
-	u.Token, err = jwt_generator.GenerateJwt(u.ID)
+	u.Token, err = lib.GenerateJwt(u.ID)
 	if err != nil {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: err}
 	}
@@ -60,7 +60,7 @@ func (h *Handler) Login(c echo.Context) (err error) {
 		return &echo.HTTPError{Code: http.StatusUnauthorized, Message: err}
 	}
 	
-	u.Token, err = jwt_generator.GenerateJwt(u.ID)
+	u.Token, err = lib.GenerateJwt(u.ID)
 	if err != nil {
 		return err
 	}
