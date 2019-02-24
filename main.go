@@ -9,6 +9,7 @@ import (
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/labstack/gommon/log"
+	"os"
 )
 
 const (
@@ -17,9 +18,11 @@ const (
 )
 
 func main()  {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error while loading .env file")
+	if os.Getenv("ENV") != "production" {
+		err := godotenv.Load()
+		if err != nil {
+			log.Fatal("Error while loading .env file")
+		}
 	}
 
 	e := echo.New()
