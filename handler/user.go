@@ -36,7 +36,7 @@ func (h *Handler) Signup(c echo.Context) (err error) {
 		return &echo.HTTPError{Code: http.StatusInternalServerError, Message: err}
 	}
 
-	// パスワードをjsonに含めないため
+	// Not to include password in the response
 	u.Password = ""
 	return c.JSON(http.StatusCreated, u)
 }
@@ -65,7 +65,7 @@ func (h *Handler) Login(c echo.Context) (err error) {
 		return err
 	}
 
-	// パスワードをjsonに含めないため
+	// Not to include password in the response
 	u.Password = ""
 	return c.JSON(http.StatusOK, u)
 }

@@ -1,2 +1,5 @@
-
+# Jebrain IDE
 .idea
+
+# env file
+.env

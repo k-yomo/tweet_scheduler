@@ -1,0 +1,1 @@
+CREATE DATABASE tweet_scheduler_development;

@@ -6,17 +6,19 @@ import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
 	"github.com/k-yomo/tweet_scheduler/models"
+	"golang.org/x/crypto/bcrypt"
+	"os"
 )
 
 var config = struct {
 	DBName   string `default:"tweet_scheduler_development"`
-	User     string `default:"postgres"`
-	Host     string `default:"localhost"`
-	Password string `default:"password" env:"DBPassword"`
-	Port     string `default:"5433"`
+	User     string `default:"postgres" env:"DB_USER"`
+	Host     string `default:"db" env:"DB_HOST"`
+	Password string `default:"postgres" env:"DB_PASSWORD"`
+	Port     string `default:"5432" env:"DB_PORT"`
 }{}
 
-func New() (db *gorm.DB) {
+func New() (*gorm.DB, error) {
 
 	_ = configor.Load(&config)
 
@@ -27,20 +29,35 @@ func New() (db *gorm.DB) {
 		config.User,
 		config.DBName,
 		config.Password)
+	fmt.Print(args)
 
 	db, err := gorm.Open("postgres", args)
 
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
-
-	db.LogMode(true)
 
 	autoMigrate(db)
 
-	return
+	env := os.Getenv("ENV")
+	if env != "production" {
+		seedData(db)
+		db.LogMode(true)
+	}
+
+	return db, nil
 }
 
 func autoMigrate(db *gorm.DB) {
 	db.AutoMigrate(&models.User{}, &models.Tweet{})
+}
+
+func seedData(db *gorm.DB) {
+	u := models.User{
+		Email: "test@example.com",
+		Password: "password",
+	}
+	passwordHash, _ := bcrypt.GenerateFromPassword([]byte(u.Password), bcrypt.DefaultCost)
+	u.PasswordHash = passwordHash
+	db.Create(u)
 }

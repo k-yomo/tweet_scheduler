@@ -3,9 +3,9 @@ package main
 import (
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/postgres"
-	"github.com/k-yomo/tweet_scheduler/handler"
-	"github.com/k-yomo/tweet_scheduler/helper"
-	"github.com/k-yomo/tweet_scheduler/models"
+	"github.com/k-yomo/tweet_scheduler/src/handler"
+	"github.com/k-yomo/tweet_scheduler/src/helper"
+	"github.com/k-yomo/tweet_scheduler/src/models"
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/labstack/gommon/log"

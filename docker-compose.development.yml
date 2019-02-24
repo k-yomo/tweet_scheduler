@@ -3,13 +3,21 @@ version: "3.3"
 services:
   db:
     image: postgres
+    volumes:
+      - ./docker/db/data:/var/lib/mysql
+      - ./docker/db/sqls:/docker-entrypoint-initdb.d
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
   app:
     build:
       context: .
       dockerfile: ./Dockerfile
     volumes:
-      - ./server.go:/go/src/github.com/k-yomo/tweet_scheduler/server.go
+      - .:/go/src/github.com/k-yomo/tweet_scheduler
     depends_on:
       - db
     ports:
       - 1323:1323
+    environment:
+      DB_HOST: db
