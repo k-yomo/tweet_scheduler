@@ -54,6 +54,8 @@ func main()  {
 	e.POST(ApiRoot + "/tweets", h.CreateTweet)
 	e.PUT(ApiRoot + "/tweets/:id", h.UpdateTweet)
 	e.DELETE(ApiRoot + "/tweets/:id", h.DeleteTweet)
+	// Tweet Logs
+	e.GET(ApiRoot + "/tweet_logs", h.GetTweetLogs)
 
 	// Tweet once every 3 hours
 	gocron.Start()

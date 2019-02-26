@@ -48,7 +48,7 @@ func New() (*gorm.DB, error) {
 }
 
 func autoMigrate(db *gorm.DB) {
-	db.AutoMigrate(&models.User{}, &models.Tweet{})
+	db.AutoMigrate(&models.User{}, &models.Tweet{}, &models.TweetLog{})
 }
 
 func seedData(db *gorm.DB) {
