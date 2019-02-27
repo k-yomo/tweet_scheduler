@@ -9,6 +9,7 @@ import (
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/labstack/gommon/log"
+	"net/http"
 	"os"
 )
 
@@ -31,8 +32,8 @@ func main()  {
 	e.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		SigningKey: []byte(lib.JwtSigningKey),
 		Skipper: func(c echo.Context) bool {
-			// Skip authentication for login request
-			if c.Path() == AuthApiRoot + "/login" {
+			// Skip authentication for a request to root or login path
+			if c.Path() == "/" || c.Path() == AuthApiRoot + "/login" {
 				return true
 			}
 			return false
@@ -47,6 +48,12 @@ func main()  {
 	h := &handler.Handler{DB: database}
 
 	// Routes
+	// Not to let heroku instance sleep, we use monitor service(http://www.uptimerobot.com/)
+	// And it require the app to return 200, so we use root path for it.
+	e.GET("/", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, "")
+	})
+	// Auth
 	e.POST(AuthApiRoot + "/sign_up", h.Signup)
 	e.POST(AuthApiRoot + "/login", h.Login)
 	// Tweet CRUD
