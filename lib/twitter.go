@@ -36,9 +36,15 @@ func TweetRandomly() {
 	}
 	rand.Seed(time.Now().UnixNano())
 	tweetIndex := rand.Intn(len(tweets))
-	_, err = api.PostTweet(tweets[tweetIndex].Body, nil)
+	selectedTweetBody := tweets[tweetIndex].Body
+	_, err = api.PostTweet(selectedTweetBody, nil)
 	if err != nil {
 		log.Error(err)
+	}
+	tweetLog := &models.TweetLog{TweetBody: selectedTweetBody}
+	result := database.Create(tweetLog)
+	if result.Error != nil {
+		log.Error(result.Error)
 	}
 }
 

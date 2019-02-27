@@ -9,6 +9,8 @@ import (
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/labstack/gommon/log"
+	"net/http"
+	"os"
 )
 
 const (
@@ -17,9 +19,11 @@ const (
 )
 
 func main()  {
-	err := godotenv.Load()
-	if err != nil {
-		log.Fatal("Error while loading .env file")
+	if os.Getenv("ENV") != "production" {
+		err := godotenv.Load()
+		if err != nil {
+			log.Fatal("Error while loading .env file")
+		}
 	}
 
 	e := echo.New()
@@ -28,8 +32,8 @@ func main()  {
 	e.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		SigningKey: []byte(lib.JwtSigningKey),
 		Skipper: func(c echo.Context) bool {
-			// Skip authentication for login request
-			if c.Path() == AuthApiRoot + "/login" {
+			// Skip authentication for a request to root or login path
+			if c.Path() == "/" || c.Path() == AuthApiRoot + "/login" {
 				return true
 			}
 			return false
@@ -44,6 +48,12 @@ func main()  {
 	h := &handler.Handler{DB: database}
 
 	// Routes
+	// Not to let heroku instance sleep, we use monitor service(http://www.uptimerobot.com/)
+	// And it require the app to return 200, so we use root path for it.
+	e.GET("/", func(c echo.Context) error {
+		return c.JSON(http.StatusOK, "")
+	})
+	// Auth
 	e.POST(AuthApiRoot + "/sign_up", h.Signup)
 	e.POST(AuthApiRoot + "/login", h.Login)
 	// Tweet CRUD
@@ -51,11 +61,13 @@ func main()  {
 	e.POST(ApiRoot + "/tweets", h.CreateTweet)
 	e.PUT(ApiRoot + "/tweets/:id", h.UpdateTweet)
 	e.DELETE(ApiRoot + "/tweets/:id", h.DeleteTweet)
+	// Tweet Logs
+	e.GET(ApiRoot + "/tweet_logs", h.GetTweetLogs)
 
 	// Tweet once every 3 hours
 	gocron.Start()
 	gocron.Every(3).Hours().Do(lib.TweetRandomly)
 
 	// Start server
-	e.Logger.Fatal(e.Start(":1323"))
+	e.Logger.Fatal(e.Start(":" + os.Getenv("PORT")))
 }
