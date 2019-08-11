@@ -64,9 +64,9 @@ func main()  {
 	// Tweet Logs
 	e.GET(ApiRoot + "/tweet_logs", h.GetTweetLogs)
 
-	// Tweet once every 3 hours
+	// Tweet once every 6 hours
 	gocron.Start()
-	gocron.Every(3).Hours().Do(lib.TweetRandomly)
+	gocron.Every(6).Hours().Do(lib.TweetRandomly)
 
 	// Start server
 	e.Logger.Fatal(e.Start(":" + os.Getenv("PORT")))
